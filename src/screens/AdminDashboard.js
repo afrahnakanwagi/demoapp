@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from "react-native";
-import { LineChart } from "react-native-chart-kit";
+import { BarChart, LineChart } from "react-native-chart-kit";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 
@@ -77,52 +77,76 @@ const AdminDashboard = () => {
 
               {/* Wallet Cards in One Row */}
               <View style={styles.walletCardContainer}>
-                <View style={styles.walletCard}>
-                  <Text style={styles.cardTitle}>Main Balance</Text>
-                  <Text style={styles.cardValue}>UGX {stats.wallet.balance.toLocaleString()}</Text>
-                </View>
-                <View style={styles.walletCard}>
-                  <Text style={styles.cardTitle}>Total Transactions</Text>
-                  <Text style={styles.cardValue}>{stats.wallet.totalTransactions.toLocaleString()}</Text>
-                </View>
-                <View style={styles.walletCard}>
-                  <Text style={styles.cardTitle}>Pending Transactions</Text>
-                  <Text style={styles.cardValue}>{stats.wallet.pendingTransactions}</Text>
-                </View>
-              </View>
-
-              {/* Wallet Buttons */}
-              <View style={styles.walletButtons}>
-                <TouchableOpacity style={styles.walletButton} onPress={() => navigation.navigate("Deposit")}>
+                <View >
+                  {/* Main Balance Card */}
+                  <View style={styles.walletCard}>
+                    <Text style={styles.cardTitle}>Main Balance</Text>
+                    <Text style={styles.cardValue}>UGX {stats.wallet.balance.toLocaleString()}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.walletButton} onPress={() => navigation.navigate("Deposit")}>
                   <Text style={styles.walletButtonText}>Deposit</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.walletButton}>
-                  <Text style={styles.walletButtonText}>View History</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.walletButton}>
-                  <Text style={styles.walletButtonText}>Withdraw</Text>
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                </View>
+                <View>
+                  <View style={styles.walletCard}>
+                    <Text style={styles.cardTitle}>Total Transactions</Text>
+                    <Text style={styles.cardValue}>{stats.wallet.totalTransactions.toLocaleString()}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.walletButton}>
+                    <Text style={styles.walletButtonText}>View History</Text>
+                  </TouchableOpacity>
+                </View>
+                <View>
+                  <View style={styles.walletCard}>
+                    <Text style={styles.cardTitle}>Pending Transactions</Text>
+                    <Text style={styles.cardValue}>{stats.wallet.pendingTransactions}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.walletButton}>
+                    <Text style={styles.walletButtonText}>Withdraw</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
 
-            {/* Revenue Graph */}
-            <View style={styles.chartContainer}>
-              <Text style={styles.sectionTitle}>Revenue Growth</Text>
-              <LineChart
-                data={revenueData}
-                width={800}
-                height={250}
-                chartConfig={{
-                  backgroundColor: "#fff",
-                  backgroundGradientFrom: "#f4f4f4",
-                  backgroundGradientTo: "#f4f4f4",
-                  decimalPlaces: 0,
-                  color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
-                  labelColor: () => "#333",
-                }}
-                bezier
-                style={{ borderRadius: 10 }}
-              />
+            <View style={styles.chartArea}>
+              {/* Revenue Graph */}
+              <View style={styles.chartContainer}>
+                <Text style={styles.sectionTitle}>Revenue Growth</Text>
+                <LineChart
+                  data={revenueData}
+                  width={450}
+                  height={250}
+                  chartConfig={{
+                    backgroundColor: "#fff",
+                    backgroundGradientFrom: "#f4f4f4",
+                    backgroundGradientTo: "#f4f4f4",
+                    decimalPlaces: 0,
+                    color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+                    labelColor: () => "#333",
+                  }}
+                  bezier
+                  style={{ borderRadius: 10, flex: 1, }}
+                />
+              </View>
+              {/* Revenue Graph */}
+              <View style={styles.chartContainer}>
+                <Text style={styles.sectionTitle}>Revenue Growth</Text>
+                <BarChart
+                  data={revenueData}
+                  width={450}
+                  height={250}
+                  chartConfig={{
+                    backgroundColor: "#fff",
+                    backgroundGradientFrom: "#f4f4f4",
+                    backgroundGradientTo: "#f4f4f4",
+                    decimalPlaces: 0,
+                    color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+                    labelColor: () => "#333",
+                  }}
+                  bezier
+                  style={{ borderRadius: 10, flex: 1, }}
+                />
+              </View>
             </View>
 
             {/* Order Summary Table */}
@@ -165,20 +189,20 @@ const styles = StyleSheet.create({
 
   heading: { fontSize: 22, fontWeight: "bold", marginBottom: 15 },
 
-  filterContainer: { flexDirection: "row", marginBottom: 15, boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)" },
-  filterButton: { padding: 8, borderRadius: 10, backgroundColor: "#fff", marginRight: 10,boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)"  },
+  filterContainer: { flexDirection: "row", marginBottom: 15,},
+  filterButton: { padding: 8, borderRadius: 10, backgroundColor: "#fff", marginRight: 10,},
   selectedFilter: { backgroundColor: "#280300" },
   filterText: { fontSize: 14, color: "#333" },
   selectedFilterText: { color: "#fff" },
 
-  cardScrollView: { marginBottom: 20, paddingLeft: 40 },
+  cardScrollView: { marginBottom: 20, padding: 25 },
   card: {
     width: 210,
     padding: 15,
     backgroundColor: "#fff",
     borderRadius: 10,
     marginRight: 10,
-    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)"
+    boxShadow: "2px 2px 2px 2px rgba(0, 0, 0, 0.2)"
   },
   cardTitle: { fontSize: 14, fontWeight: "bold", color: "#F9622C" },
   cardValue: { fontSize: 18, fontWeight: "bold", marginTop: 5 },
@@ -189,7 +213,7 @@ const styles = StyleSheet.create({
     padding: 20,
     width: 950,
     marginBottom: 20,
-    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)"
+    boxShadow: "0px 1px 1px rgba(0, 0, 0, 0.1)"
   },
 
   walletCardContainer: {
@@ -200,36 +224,46 @@ const styles = StyleSheet.create({
     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.01)"
   },
 
+
   walletCard: {
     flex: 1,
     backgroundColor: "#fff",
     padding: 15,
     width: 250,
+    marginBottom: 10,
     borderRadius: 10,
     marginHorizontal: 5,
     alignItems: "center",
     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)"
   },
 
-  walletButtons: { flexDirection: "row", justifyContent: "space-between" },
+  // walletButtons: { flexDirection: "row", justifyContent: "space-between" },
   walletButton: {
     backgroundColor: "#F9622C",
     padding: 10,
     borderRadius: 5,
-    width: "30%",
+    width: "100%",
     alignItems: "center",
   },
   walletButtonText: { color: "#fff", fontWeight: "bold" },
 
+  chartArea: {
+    flex: 1,
+    flexDirection: "row",
+    elevation: 5,
+    width: 1000,
+    padding: 10,
+  },
   chartContainer: {
+    flex: 1,
     backgroundColor: "#fff",
-    padding: 20,
+    padding: 10,
     borderRadius: 10,
     marginBottom: 20,
-    elevation: 5,
-    width: 900,
+    width: "50%",
   },
-  sectionTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+
+  sectionTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 15 },
   // Stats Table
   statsContainer: { backgroundColor: "#fff", padding: 20, borderRadius: 10, marginBottom: 20 },
   table: { borderWidth: 1, borderColor: "#ddd", borderRadius: 10, width: 900 },
