@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
-import { View, ActivityIndicator, ScrollView, TextInput, FlatList, Text, Button, Modal, TouchableOpacity, Switch } from "react-native";
+import { View, ActivityIndicator, TextInput, FlatList, Text, Button, Modal, TouchableOpacity, Switch } from "react-native";
 import { DataTable, TextInput as PaperInput } from "react-native-paper";
 import axios from "axios";
 
@@ -99,16 +99,19 @@ const UsersScreen = ({ navigation }) => {
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
-        <DataTable>
-          <DataTable.Header style={{ backgroundColor: "#F9622C" }}>
-            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>First Name</DataTable.Title>
-            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Last Name</DataTable.Title>
-            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Email</DataTable.Title>
-            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Role</DataTable.Title>
-            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Approval</DataTable.Title>
-          </DataTable.Header>
+        <ScrollView horizontal style={styles.scrollContainer}>
+          <View style={styles.tableWrapper}>
+            {/* Table Header */}
+            <DataTable style={styles.table}>
+              <DataTable.Header style={styles.header}>
+                <DataTable.Title style={styles.columnHeader}>First Name</DataTable.Title>
+                <DataTable.Title style={styles.columnHeader}>Last Name</DataTable.Title>
+                <DataTable.Title style={styles.columnHeader}>Email</DataTable.Title>
+                <DataTable.Title style={styles.columnHeader}>Role</DataTable.Title>
+                <DataTable.Title style={styles.columnHeader}>Approval</DataTable.Title>
+              </DataTable.Header>
 
-          <ScrollView style={{ flex: 1 }}>
+          <View style={{ flex: 1 }}>
             <FlatList
               data={filteredUsers}
               keyExtractor={(item) => item.id.toString()}
@@ -130,7 +133,7 @@ const UsersScreen = ({ navigation }) => {
               )}
               contentContainerStyle={{ paddingBottom: 20 }} // Ensures enough space at the bottom
             />
-          </ScrollView>
+          </View>
 
         </DataTable>
       )}
@@ -211,6 +214,55 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: 40,
+  },
+  scrollContainer: {
+    width: "100%",
+  },
+  tableWrapper: {
+    minWidth: 900, // Wider table
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingVertical: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    alignSelf: "center", // Centers the table
+    justifyContent: "center", // Centers content inside
+  },
+  table: {
+    minWidth: 900,
+  },
+  header: {
+    backgroundColor: "#F9622C", // Orange header
+    borderBottomWidth: 2,
+    borderBottomColor: "#ccc",
+  },
+  columnHeader: {
+    flex: 1,
+    justifyContent: "center",
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  tableBody: {
+    maxHeight: 400, // Allow vertical scrolling
+  },
+  row: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  evenRow: {
+    backgroundColor: "#f9f9f9",
+  },
+  oddRow: {
+    backgroundColor: "#fff",
+  },
+  column: {
+    flex: 1,
+    justifyContent: "center",
+    textAlign: "center",
   },
 });
 
