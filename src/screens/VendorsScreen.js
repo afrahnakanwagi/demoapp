@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { DataTable, Button } from "react-native-paper";
 import axios from "axios";
-import { Button } from "react-native-paper";
 
 const VendorsScreen = ({ navigation }) => {
   const [vendors, setVendors] = useState([]);
@@ -12,7 +12,7 @@ const VendorsScreen = ({ navigation }) => {
 
   const fetchVendors = async () => {
     try {
-      const response = await axios.get("http://192.168.28.83:8000/vendor");
+      const response = await axios.get("http://192.168.1.44:8000/vendor");
       setVendors(response.data);
     } catch (error) {
       console.error("Error fetching vendors:", error);
@@ -21,90 +21,60 @@ const VendorsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* Back Button */}
       <Button mode="contained" onPress={() => navigation.navigate("AdminDashboard")} style={styles.backButton}>
         Back to Admin Dashboard
       </Button>
 
       <Text style={styles.title}>Vendors</Text>
 
-      <FlatList
-        data={vendors}
-        numColumns={2}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.vendorCard}>
-            <View style={styles.row}>
-              <Text style={styles.label}>Shop Name:</Text>
-              <Text style={styles.value}>{item.shop_name}</Text>
-            </View>
+      {/* Centered Table */}
+      <ScrollView horizontal contentContainerStyle={styles.tableContainer}>
+        <DataTable style={styles.table}>
+          {/* Table Header */}
+          <DataTable.Header style={styles.header}>
+            <DataTable.Title textStyle={styles.headerText} style={styles.column}>Shop Name</DataTable.Title>
+            <DataTable.Title textStyle={styles.headerText} style={styles.column}>Shop Address</DataTable.Title>
+            <DataTable.Title textStyle={styles.headerText} style={styles.column}>Description</DataTable.Title>
+            <DataTable.Title textStyle={styles.headerText} style={styles.column}>Status</DataTable.Title>
+            <DataTable.Title textStyle={styles.headerText} style={styles.column}>User</DataTable.Title>
+          </DataTable.Header>
 
-            <View style={styles.row}>
-              <Text style={styles.label}>Shop Address:</Text>
-              <Text style={styles.value}>{item.shop_address}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Description:</Text>
-              <Text style={styles.value}>{item.shop_description}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Status:</Text>
-              <Text style={[styles.value, styles.status]}>{item.status}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>User:</Text>
-              <Text style={styles.value}>{item.user}</Text>
-            </View>
-
-            {/* Buttons */}
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.contactButton}>
-                <Text style={styles.buttonText}>Contact</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.blockButton}>
-                <Text style={styles.blockButtonText}>Block</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      />
+          {/* Table Rows */}
+          {vendors.map((vendor) => (
+            <DataTable.Row key={vendor.id}>
+              <DataTable.Cell style={styles.column}>{vendor.shop_name}</DataTable.Cell>
+              <DataTable.Cell style={styles.column}>{vendor.shop_address}</DataTable.Cell>
+              <DataTable.Cell style={styles.column}>{vendor.shop_description}</DataTable.Cell>
+              <DataTable.Cell style={[styles.column, vendor.status === "active" ? styles.activeStatus : styles.blockedStatus]}>
+                {vendor.status}
+              </DataTable.Cell>
+              <DataTable.Cell style={styles.column}>{vendor.user}</DataTable.Cell>
+            </DataTable.Row>
+          ))}
+        </DataTable>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#F8F8F8" },
+  container: { flex: 1, padding: 20, backgroundColor: "#F8F8F8", alignItems: "center" },
   backButton: { marginBottom: 15, backgroundColor: "#F9622C" },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 10, textAlign: "center" },
-  vendorCard: {
-    flex: 1,
-    padding: 15,
-    margin: 10,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 5,
-  },
-  label: { fontSize: 12, fontWeight: "bold", color: "#555" },
-  value: { fontSize: 14, color: "#333" },
-  status: { color: "green", fontWeight: "bold" },
-  buttonContainer: { flexDirection: "row", justifyContent: "space-between", marginTop: 10 },
-  contactButton: { backgroundColor: "#000", padding: 8, borderRadius: 5 },
-  blockButton: { backgroundColor: "#fff", borderWidth: 1, borderColor: "#000", padding: 8, borderRadius: 5 },
-  buttonText: { color: "#fff", fontWeight: "bold" },
-  blockButtonText: { color: "#000", fontWeight: "bold" },
+  
+  // Table Styling
+  tableContainer: { alignItems: "center", justifyContent: "center", width: "100%" },
+  table: { minWidth: 600, backgroundColor: "#fff", borderRadius: 8, overflow: "hidden", elevation: 2 },
+  
+  // Header Styling
+  header: { backgroundColor: "#F9622C", borderRadius: 8 },
+  headerText: { color: "#fff", fontWeight: "bold" },
+
+  // Columns & Rows
+  column: { flex: 1, justifyContent: "center", paddingHorizontal: 10 },
+  activeStatus: { color: "green", fontWeight: "bold" },
+  blockedStatus: { color: "red", fontWeight: "bold" },
 });
 
 export default VendorsScreen;

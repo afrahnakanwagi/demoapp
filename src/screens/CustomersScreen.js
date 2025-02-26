@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput } from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { DataTable, Button } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 
@@ -13,7 +14,7 @@ const CustomersScreen = () => {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get("http://192.168.28.83:8000/customers/");
+      const response = await axios.get("http://192.168.1.44:8000/customers/");
       setCustomers(response.data);
     } catch (error) {
       console.error("Error fetching customers:", error);
@@ -22,98 +23,133 @@ const CustomersScreen = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>← Back to Admin Dashboard</Text>
-      </TouchableOpacity>
+      {/* Back Button */}
+      <Button mode="contained" onPress={() => navigation.goBack()} style={styles.backButton}>
+        ← Back to Admin Dashboard
+      </Button>
 
       <Text style={styles.title}>Customers</Text>
 
-      <FlatList
-        data={customers}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.customerCard}>
-            <Text style={styles.sectionTitle}>Customer Details</Text>
+      {/* Scrollable Table */}
+      <ScrollView horizontal style={styles.scrollContainer}>
+        <View style={styles.tableWrapper}>
+          <DataTable style={styles.table}>
+            {/* Table Header */}
+            <DataTable.Header style={styles.header}>
+              <DataTable.Title style={styles.columnHeader}>ID</DataTable.Title>
+              <DataTable.Title style={styles.columnHeader}>User</DataTable.Title>
+              <DataTable.Title style={styles.columnHeader}>Email</DataTable.Title>
+              <DataTable.Title style={styles.columnHeader}>Phone</DataTable.Title>
+              <DataTable.Title style={styles.columnHeader}>Status</DataTable.Title>
+              <DataTable.Title style={styles.columnHeader}>Wallet</DataTable.Title>
+            </DataTable.Header>
 
-            <View style={styles.row}>
-              <Text style={styles.label}>ID:</Text>
-              <TextInput style={styles.input} value={String(item.id)} editable={false} />
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>User:</Text>
-              <TextInput style={styles.input} value={item.user.username} editable={false} />
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Email:</Text>
-              <TextInput style={styles.input} value={item.user.email} editable={false} />
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Phone:</Text>
-              <TextInput style={styles.input} value={item.full_phone_number} editable={false} />
-            </View>
-
-            <Text style={styles.sectionTitle}>Account Information</Text>
-            <View style={styles.row}>
-              <Text style={styles.label}>Status:</Text>
-              <TextInput style={[styles.input, styles.status(item.status)]} value={item.status} editable={false} />
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Wallet:</Text>
-              <TextInput style={styles.input} value={`UGX ${item.wallet}`} editable={false} />
-            </View>
-
-            <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.contactButton}>
-                <Text style={styles.contactText}>Contact</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.blockButton}>
-                <Text style={styles.blockText}>Block</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      />
+            {/* Table Rows */}
+            <ScrollView style={styles.tableBody}>
+              {customers.map((customer, index) => (
+                <DataTable.Row
+                  key={customer.id}
+                  style={[styles.row, index % 2 === 0 ? styles.evenRow : styles.oddRow]}
+                >
+                  <DataTable.Cell style={styles.column}>{customer.id}</DataTable.Cell>
+                  <DataTable.Cell style={styles.column}>{customer.user.username}</DataTable.Cell>
+                  <DataTable.Cell style={styles.column}>{customer.user.email}</DataTable.Cell>
+                  <DataTable.Cell style={styles.column}>{customer.full_phone_number}</DataTable.Cell>
+                  <DataTable.Cell
+                    style={[
+                      styles.column,
+                      customer.status === "Active" ? styles.activeStatus : styles.inactiveStatus,
+                    ]}
+                  >
+                    {customer.status}
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.column}>UGX {customer.wallet}</DataTable.Cell>
+                </DataTable.Row>
+              ))}
+            </ScrollView>
+          </DataTable>
+        </View>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#F8F8F8" },
-  backButton: { marginBottom: 10, padding: 10, backgroundColor: "#ddd", borderRadius: 5 },
-  backButtonText: { fontSize: 16, color: "#333" },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 10, textAlign: "center" },
-  customerCard: {
+  container: {
+    flex: 1,
     padding: 20,
-    marginVertical: 10,
+    backgroundColor: "#F8F8F8",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  backButton: {
+    marginBottom: 15,
+    backgroundColor: "#F9622C",
+    alignSelf: "flex-start",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  scrollContainer: {
+    width: "100%",
+  },
+  tableWrapper: {
+    minWidth: 900, // Wider table
     backgroundColor: "#fff",
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
+    paddingVertical: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    alignSelf: "center", // Centers the table
+    justifyContent: "center", // Centers content inside
   },
-  sectionTitle: { fontSize: 16, fontWeight: "bold", marginBottom: 10 },
-  row: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
-  label: { fontSize: 14, fontWeight: "bold", color: "#555" },
-  input: {
+  table: {
+    minWidth: 900,
+  },
+  header: {
+    backgroundColor: "#F9622C", // Orange header
+    borderBottomWidth: 2,
+    borderBottomColor: "#ccc",
+  },
+  columnHeader: {
     flex: 1,
-    backgroundColor: "#F3F3F3",
-    padding: 8,
-    borderRadius: 5,
-    textAlign: "right",
-  },
-  status: (status) => ({
-    color: status === "Active" ? "green" : status === "Inactive" ? "orange" : "red",
+    justifyContent: "center",
+    color: "#fff",
     fontWeight: "bold",
-  }),
-  buttonRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 10 },
-  contactButton: { backgroundColor: "black", padding: 10, borderRadius: 5 },
-  contactText: { color: "#fff", fontWeight: "bold" },
-  blockButton: { backgroundColor: "#fff", borderWidth: 1, borderColor: "#000", padding: 10, borderRadius: 5 },
-  blockText: { color: "#000", fontWeight: "bold" },
+    textAlign: "center",
+  },
+  tableBody: {
+    maxHeight: 400, // Allow vertical scrolling
+  },
+  row: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  evenRow: {
+    backgroundColor: "#f9f9f9",
+  },
+  oddRow: {
+    backgroundColor: "#fff",
+  },
+  column: {
+    flex: 1,
+    justifyContent: "center",
+    textAlign: "center",
+  },
+  activeStatus: {
+    color: "green",
+    fontWeight: "bold",
+  },
+  inactiveStatus: {
+    color: "red",
+    fontWeight: "bold",
+  },
 });
 
 export default CustomersScreen;

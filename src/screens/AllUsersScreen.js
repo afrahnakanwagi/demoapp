@@ -19,7 +19,7 @@ const UsersScreen = ({ navigation }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://192.168.28.83:8000/api/users/");
+      const response = await axios.get("http://192.168.1.44:8000/api/users/");
       setUsers(response.data);
       setFilteredUsers(response.data);
     } catch (error) {
@@ -52,15 +52,14 @@ const UsersScreen = ({ navigation }) => {
 
   const confirmApproval = async () => {
     try {
-      await axios.post(`http://192.168.28.83:8000/api/approve-vendor/${selectedUser.id}/`, {
+      await axios.post(`http://192.168.1.44:8000/api/approve-vendor/${selectedUser.id}/`, {
         is_approved: isApproved,
       });
-      // Update the users list after approval
       const updatedUsers = users.map((user) =>
         user.id === selectedUser.id ? { ...user, is_approved: isApproved } : user
       );
       setUsers(updatedUsers);
-      setFilteredUsers(updatedUsers); // Also update the filtered list
+      setFilteredUsers(updatedUsers);
       setConfirmationModalVisible(false);
       alert("Approval status updated successfully.");
     } catch (error) {
@@ -100,12 +99,12 @@ const UsersScreen = ({ navigation }) => {
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
         <DataTable>
-          <DataTable.Header>
-            <DataTable.Title>First Name</DataTable.Title>
-            <DataTable.Title>Last Name</DataTable.Title>
-            <DataTable.Title>Email</DataTable.Title>
-            <DataTable.Title>Role</DataTable.Title>
-            <DataTable.Title>Approval</DataTable.Title>
+          <DataTable.Header style={{ backgroundColor: "#F9622C" }}>
+            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>First Name</DataTable.Title>
+            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Last Name</DataTable.Title>
+            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Email</DataTable.Title>
+            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Role</DataTable.Title>
+            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Approval</DataTable.Title>
           </DataTable.Header>
 
           <FlatList
@@ -144,42 +143,12 @@ const UsersScreen = ({ navigation }) => {
               <View>
                 <Text style={{ fontSize: 18, marginBottom: 20, color: "#F9622C" }}>User Details</Text>
                 <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
-                  <PaperInput
-                    label="First Name"
-                    value={selectedUser.first_name}
-                    style={{ width: "45%", marginBottom: 10 }}
-                    disabled
-                  />
-                  <PaperInput
-                    label="Last Name"
-                    value={selectedUser.last_name}
-                    style={{ width: "45%", marginBottom: 10 }}
-                    disabled
-                  />
-                  <PaperInput
-                    label="Email"
-                    value={selectedUser.email}
-                    style={{ width: "45%", marginBottom: 10 }}
-                    disabled
-                  />
-                  <PaperInput
-                    label="Phone Number"
-                    value={selectedUser.phone_number || "N/A"}
-                    style={{ width: "45%", marginBottom: 10 }}
-                    disabled
-                  />
-                  <PaperInput
-                    label="Status"
-                    value={selectedUser.is_vendor ? "Vendor" : "Customer"}
-                    style={{ width: "45%", marginBottom: 10 }}
-                    disabled
-                  />
-                  <PaperInput
-                    label="Approval"
-                    value={selectedUser.is_approved ? "Approved" : "Pending"}
-                    style={{ width: "45%", marginBottom: 10 }}
-                    disabled
-                  />
+                  <PaperInput label="First Name" value={selectedUser.first_name} style={{ width: "45%", marginBottom: 10 }} disabled />
+                  <PaperInput label="Last Name" value={selectedUser.last_name} style={{ width: "45%", marginBottom: 10 }} disabled />
+                  <PaperInput label="Email" value={selectedUser.email} style={{ width: "45%", marginBottom: 10 }} disabled />
+                  <PaperInput label="Phone Number" value={selectedUser.phone_number || "N/A"} style={{ width: "45%", marginBottom: 10 }} disabled />
+                  <PaperInput label="Status" value={selectedUser.is_vendor ? "Vendor" : "Customer"} style={{ width: "45%", marginBottom: 10 }} disabled />
+                  <PaperInput label="Approval" value={selectedUser.is_approved ? "Approved" : "Pending"} style={{ width: "45%", marginBottom: 10 }} disabled />
                 </View>
                 <TouchableOpacity onPress={() => setModalVisible(false)} style={{ marginTop: 20 }}>
                   <Text style={{ color: "red" }}>Close</Text>
