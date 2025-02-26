@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
-import { View, ActivityIndicator, TextInput, FlatList, Text, Button, Modal, TouchableOpacity, Switch } from "react-native";
+import { View, ActivityIndicator, ScrollView, TextInput, FlatList, Text, Button, Modal, TouchableOpacity, Switch } from "react-native";
 import { DataTable, TextInput as PaperInput } from "react-native-paper";
 import axios from "axios";
 
@@ -108,7 +108,7 @@ const UsersScreen = ({ navigation }) => {
             <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Approval</DataTable.Title>
           </DataTable.Header>
 
-          <View style={{ flex: 1 }}>
+          <ScrollView style={{ flex: 1 }}>
             <FlatList
               data={filteredUsers}
               keyExtractor={(item) => item.id.toString()}
@@ -130,7 +130,7 @@ const UsersScreen = ({ navigation }) => {
               )}
               contentContainerStyle={{ paddingBottom: 20 }} // Ensures enough space at the bottom
             />
-          </View>
+          </ScrollView>
 
         </DataTable>
       )}

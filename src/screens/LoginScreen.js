@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Image, Animated } from "react-native";
-import { TextInput, Button, Text, Modal } from "react-native-paper";
+import React, { useState } from "react";
+import { View, StyleSheet, Image } from "react-native";
+import { TextInput, Button, Text } from "react-native-paper";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const [welcomeVisible, setWelcomeVisible] = useState(false);
-  const [fadeAnim] = useState(new Animated.Value(1));
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   const validationSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email").required("Email is required"),
@@ -17,31 +14,11 @@ const LoginScreen = () => {
   });
 
   const handleLogin = (values) => {
-    // Simulating authentication (replace this with actual API call)
     const mockUser = { email: "admin@gmail.com", password: "admin12345" };
 
     if (values.email === mockUser.email && values.password === mockUser.password) {
-      setIsAuthenticated(true);
-      
-      //welcome modal
-      setWelcomeVisible(true);
-
-      // Fade out modal after 2 seconds
-      setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: true,
-        }).start();
-      }, 2000);
-
-      // Navigating to Admin Dashboard after modal disappears
-      setTimeout(() => {
-        setWelcomeVisible(false);
-        navigation.navigate("AdminDashboard");
-      }, 3000);
+      navigation.navigate("AdminDashboard"); // Navigate instantly
     } else {
-      setIsAuthenticated(false); // Setting authentication failure state
       alert("Invalid credentials. Please try again.");
     }
   };
@@ -96,13 +73,6 @@ const LoginScreen = () => {
             )}
           </Formik>
         </View>
-
-        {/* Welcome Popup with Fade Animation */}
-        <Modal visible={welcomeVisible} dismissable={false} contentContainerStyle={styles.modalContainer}>
-          <Animated.View style={{ opacity: fadeAnim }}>
-            <Text style={styles.welcomeText}>Welcome to the Admin Panel!</Text>
-          </Animated.View>
-        </Modal>
       </View>
     </View>
   );
@@ -178,22 +148,6 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 12,
     marginBottom: 10,
-  },
-  modalContainer: {
-    backgroundColor: "#fff",
-    padding: 40,
-    borderRadius: 10,
-    alignItems: "center",
-    elevation: 5,
-    width: "80%",
-    justifyContent: "center",
-    height: 150,
-  },
-  welcomeText: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
   },
 });
 
