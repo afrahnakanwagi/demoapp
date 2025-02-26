@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
-import { View, ActivityIndicator, TextInput, FlatList, Text, Button, Modal, TouchableOpacity, Switch } from "react-native";
+import { View, ActivityIndicator, TextInput, FlatList, Text, Button, Modal, TouchableOpacity, Switch, ScrollView } from "react-native";
 import { DataTable, TextInput as PaperInput } from "react-native-paper";
 import axios from "axios";
 
@@ -99,40 +99,42 @@ const UsersScreen = ({ navigation }) => {
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
-        <DataTable>
-          <DataTable.Header style={{ backgroundColor: "#F9622C" }}>
-            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>First Name</DataTable.Title>
-            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Last Name</DataTable.Title>
-            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Email</DataTable.Title>
-            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Role</DataTable.Title>
-            <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Approval</DataTable.Title>
-          </DataTable.Header>
+        <ScrollView horizontal style={styles.scrollContainer}>
+          <View style={styles.tableWrapper}>
+            {/* Table Header */}
+            <DataTable style={styles.table}>
+              <DataTable.Header style={styles.header}>
+                <DataTable.Title style={styles.columnHeader}>First Name</DataTable.Title>
+                <DataTable.Title style={styles.columnHeader}>Last Name</DataTable.Title>
+                <DataTable.Title style={styles.columnHeader}>Email</DataTable.Title>
+                <DataTable.Title style={styles.columnHeader}>Role</DataTable.Title>
+                <DataTable.Title style={styles.columnHeader}>Approval</DataTable.Title>
+              </DataTable.Header>
 
-          <View style={{ flex: 1 }}>
-            <FlatList
-              data={filteredUsers}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => handleRowClick(item)}>
-                  <DataTable.Row>
-                    <DataTable.Cell>{item.first_name}</DataTable.Cell>
-                    <DataTable.Cell>{item.last_name}</DataTable.Cell>
-                    <DataTable.Cell>{item.email}</DataTable.Cell>
-                    <DataTable.Cell>{item.is_vendor ? "Vendor" : "Customer"}</DataTable.Cell>
-                    <DataTable.Cell>
-                      <Switch
-                        value={item.is_approved}
-                        onValueChange={() => toggleApproval(item)}
-                      />
-                    </DataTable.Cell>
-                  </DataTable.Row>
-                </TouchableOpacity>
-              )}
-              contentContainerStyle={{ paddingBottom: 20 }} // Ensures enough space at the bottom
-            />
+              <ScrollView style={styles.tableBody}>
+                {filteredUsers.map((user, index) => (
+                  <TouchableOpacity onPress={() => handleRowClick(user)}>
+                    <DataTable.Row
+                      key={user.id}
+                      style={[styles.row, index % 2 === 0 ? styles.evenRow : styles.oddRow]}
+                    >
+                      <DataTable.Cell>{user.first_name}</DataTable.Cell>
+                      <DataTable.Cell>{user.last_name}</DataTable.Cell>
+                      <DataTable.Cell>{user.email}</DataTable.Cell>
+                      <DataTable.Cell>{user.is_vendor ? "Vendor" : "Customer"}</DataTable.Cell>
+                      <DataTable.Cell>
+                        <Switch
+                          value={user.is_approved}
+                          onValueChange={() => toggleApproval(user)}
+                        />
+                      </DataTable.Cell>
+                    </DataTable.Row>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </DataTable>
           </View>
-
-        </DataTable>
+        </ScrollView>
       )}
 
       {/* Modal for User Details */}
@@ -211,6 +213,55 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: 40,
+  },
+  scrollContainer: {
+    width: "100%",
+  },
+  tableWrapper: {
+    minWidth: 900, // Wider table
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingVertical: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    alignSelf: "center", // Centers the table
+    justifyContent: "center", // Centers content inside
+  },
+  table: {
+    minWidth: 900,
+  },
+  header: {
+    backgroundColor: "#F9622C", // Orange header
+    borderBottomWidth: 2,
+    borderBottomColor: "#ccc",
+  },
+  columnHeader: {
+    flex: 1,
+    justifyContent: "center",
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  tableBody: {
+    maxHeight: 400, // Allow vertical scrolling
+  },
+  row: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  evenRow: {
+    backgroundColor: "#f9f9f9",
+  },
+  oddRow: {
+    backgroundColor: "#fff",
+  },
+  column: {
+    flex: 1,
+    justifyContent: "center",
+    textAlign: "center",
   },
 });
 
