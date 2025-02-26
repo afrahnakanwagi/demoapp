@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { StyleSheet } from "react-native";
 import { View, ActivityIndicator, TextInput, FlatList, Text, Button, Modal, TouchableOpacity, Switch } from "react-native";
 import { DataTable, TextInput as PaperInput } from "react-native-paper";
 import axios from "axios";
@@ -78,22 +79,22 @@ const UsersScreen = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1, padding: 20 }}>
-      <Button
-        title="Back to Dashboard"
-        onPress={() => navigation.navigate("AdminDashboard")}
-        color="black"
-      />
-      <TextInput
-        placeholder="Search by name or email..."
-        value={searchQuery}
-        onChangeText={handleSearch}
-        style={{
-          height: 40,
-          borderBottomWidth: 1,
-          marginBottom: 10,
-          paddingHorizontal: 8,
-        }}
-      />
+      <Text style={{fontSize: 22, fontWeight: "bold", marginBottom: 15 }}>All Users</Text>
+      <View style={styles.container}>
+        <Button
+          title="Back to Dashboard"
+          onPress={() => navigation.navigate("AdminDashboard")}
+          color="black"
+        />
+        <View style={styles.searchContainer}>
+          <TextInput
+            placeholder="Search by name or email..."
+            value={searchQuery}
+            onChangeText={handleSearch}
+            style={styles.input}
+          />
+        </View>
+      </View>
 
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
@@ -107,26 +108,30 @@ const UsersScreen = ({ navigation }) => {
             <DataTable.Title textStyle={{ color: "#fff", fontWeight: "bold" }}>Approval</DataTable.Title>
           </DataTable.Header>
 
-          <FlatList
-            data={filteredUsers}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleRowClick(item)}>
-                <DataTable.Row>
-                  <DataTable.Cell>{item.first_name}</DataTable.Cell>
-                  <DataTable.Cell>{item.last_name}</DataTable.Cell>
-                  <DataTable.Cell>{item.email}</DataTable.Cell>
-                  <DataTable.Cell>{item.is_vendor ? "Vendor" : "Customer"}</DataTable.Cell>
-                  <DataTable.Cell>
-                    <Switch
-                      value={item.is_approved}
-                      onValueChange={() => toggleApproval(item)}
-                    />
-                  </DataTable.Cell>
-                </DataTable.Row>
-              </TouchableOpacity>
-            )}
-          />
+          <View style={{ flex: 1 }}>
+            <FlatList
+              data={filteredUsers}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => handleRowClick(item)}>
+                  <DataTable.Row>
+                    <DataTable.Cell>{item.first_name}</DataTable.Cell>
+                    <DataTable.Cell>{item.last_name}</DataTable.Cell>
+                    <DataTable.Cell>{item.email}</DataTable.Cell>
+                    <DataTable.Cell>{item.is_vendor ? "Vendor" : "Customer"}</DataTable.Cell>
+                    <DataTable.Cell>
+                      <Switch
+                        value={item.is_approved}
+                        onValueChange={() => toggleApproval(item)}
+                      />
+                    </DataTable.Cell>
+                  </DataTable.Row>
+                </TouchableOpacity>
+              )}
+              contentContainerStyle={{ paddingBottom: 20 }} // Ensures enough space at the bottom
+            />
+          </View>
+
         </DataTable>
       )}
 
@@ -185,5 +190,28 @@ const UsersScreen = ({ navigation }) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row", 
+    justifyContent: "space-between", 
+    alignItems: "center", 
+    padding: 10,
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    paddingHorizontal: 8,
+    flex: 1, // Takes up remaining space
+  },
+  icon: {
+    marginRight: 8,
+  },
+  input: {
+    flex: 1,
+    height: 40,
+  },
+});
 
 export default UsersScreen;
