@@ -1,8 +1,11 @@
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, TextInput, Button } from "react-native";
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from "react-native";
 import { BarChart, LineChart } from "react-native-chart-kit";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
+import BannerSection from "../screens/BannerSection"; // Adjust the path as necessary
+import BannerManagement from "../screens/BannerManagement"; // Adjust the path as necessary
+
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -25,6 +28,20 @@ const AdminDashboard = () => {
       pendingTransactions: 5,
       totalTransactions: 100,
     },
+  };
+
+  const [country, setCountry] = useState("UG");
+  const [bannerUrl, setBannerUrl] = useState("");
+  const [banners, setBanners] = useState([]);
+
+  const uploadBanner = () => {
+    const newBanner = { country, url: bannerUrl };
+    setBanners([...banners, newBanner]);
+    setBannerUrl("");
+  };
+
+  const viewBanners = () => {
+    console.log("All Banners: ", banners);
   };
 
   return (
@@ -66,7 +83,7 @@ const AdminDashboard = () => {
                 <Text style={styles.cardValue}>{loanData[selectedFilter]}</Text>
               </View>
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>User Signups</Text>
+                <Text style={styles.cardTitle}>User  Signups</Text>
                 <Text style={styles.cardValue}>{userData[selectedFilter]}</Text>
               </View>
             </ScrollView>
@@ -74,17 +91,14 @@ const AdminDashboard = () => {
             {/* Wallet Section */}
             <View style={styles.walletContainer}>
               <Text style={styles.sectionTitle}>Wallet</Text>
-
-              {/* Wallet Cards in One Row */}
               <View style={styles.walletCardContainer}>
-                <View >
-                  {/* Main Balance Card */}
+                <View>
                   <View style={styles.walletCard}>
                     <Text style={styles.cardTitle}>Main Balance</Text>
                     <Text style={styles.cardValue}>UGX {stats.wallet.balance.toLocaleString()}</Text>
                   </View>
                   <TouchableOpacity style={styles.walletButton} onPress={() => navigation.navigate("Deposit")}>
-                  <Text style={styles.walletButtonText}>Deposit</Text>
+                    <Text style={styles.walletButtonText}>Deposit</Text>
                   </TouchableOpacity>
                 </View>
                 <View>
@@ -108,6 +122,11 @@ const AdminDashboard = () => {
               </View>
             </View>
 
+            {/* Banner Section Container */}
+            <View style={styles.bannerContainer}>
+              <BannerSection />
+            </View>
+
             <View style={styles.chartArea}>
               {/* Revenue Graph */}
               <View style={styles.chartContainer}>
@@ -125,12 +144,12 @@ const AdminDashboard = () => {
                     labelColor: () => "#333",
                   }}
                   bezier
-                  style={{ borderRadius: 10, flex: 1, }}
+                  style={{ borderRadius: 10, flex: 1 }}
                 />
               </View>
-              {/* Revenue Graph */}
+              {/* Sales Graph */}
               <View style={styles.chartContainer}>
-                <Text style={styles.sectionTitle}>Revenue Growth</Text>
+                <Text style={styles.sectionTitle}>Sales</Text>
                 <BarChart
                   data={revenueData}
                   width={450}
@@ -144,7 +163,7 @@ const AdminDashboard = () => {
                     labelColor: () => "#333",
                   }}
                   bezier
-                  style={{ borderRadius: 10, flex: 1, }}
+                  style={{ borderRadius: 10, flex: 1 }}
                 />
               </View>
             </View>
@@ -189,8 +208,8 @@ const styles = StyleSheet.create({
 
   heading: { fontSize: 22, fontWeight: "bold", marginBottom: 15 },
 
-  filterContainer: { flexDirection: "row", marginBottom: 15,},
-  filterButton: { padding: 8, borderRadius: 10, backgroundColor: "#fff", marginRight: 10,},
+  filterContainer: { flexDirection: "row", marginBottom: 15 },
+  filterButton: { padding: 8, borderRadius: 10, backgroundColor: "#fff", marginRight: 10 },
   selectedFilter: { backgroundColor: "#280300" },
   filterText: { fontSize: 14, color: "#333" },
   selectedFilterText: { color: "#fff" },
@@ -224,7 +243,6 @@ const styles = StyleSheet.create({
     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.01)"
   },
 
-
   walletCard: {
     flex: 1,
     backgroundColor: "#fff",
@@ -237,7 +255,6 @@ const styles = StyleSheet.create({
     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)"
   },
 
-  // walletButtons: { flexDirection: "row", justifyContent: "space-between" },
   walletButton: {
     backgroundColor: "#F9622C",
     padding: 10,
@@ -264,7 +281,6 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 15 },
-  // Stats Table
   statsContainer: { backgroundColor: "#fff", padding: 20, borderRadius: 10, marginBottom: 20 },
   table: { borderWidth: 1, borderColor: "#ddd", borderRadius: 10, width: 900 },
   tableRow: { flexDirection: "row", justifyContent: "space-between", padding: 10, borderBottomWidth: 1, borderBottomColor: "#ddd" },
@@ -272,7 +288,18 @@ const styles = StyleSheet.create({
   tableText: { fontSize: 14 },
   tableHeader: { fontWeight: "bold", color: "#fff" },
 
-
+  bannerContainer: {
+    backgroundColor: "#fff", // Same background color as other containers
+    borderRadius: 10, // Same border radius
+    padding: 20, // Padding for the banner section
+    marginVertical: 20, // Vertical margin
+    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+    width: 948, // Width for banner section
+  },
+  input: { borderWidth: 1, borderColor: "#ddd", borderRadius: 5, padding: 10, marginBottom: 10 },
+  countryButtons: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10},
+  bannersList: { marginTop: 10 },
+  bannerItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: "#ddd" },
 });
 
 export default AdminDashboard;

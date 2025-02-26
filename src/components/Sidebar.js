@@ -93,6 +93,11 @@ const Sidebar = () => {
       ],
     },
     { label: t("settings"), route: "SettingsScreen" },
+
+    {
+      label: t("Banners"),
+      route: "BannerListScreen"
+    },
   ];
 
   // Toggle sub-menu expansion

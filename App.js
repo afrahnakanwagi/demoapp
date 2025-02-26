@@ -29,6 +29,10 @@ import WalletScreen from "./src/screens/WalletScreen";
 import DepositScreen from "./src/screens/DepositScreen";
 import WithdrawScreen from "./src/screens/WithdrawScreen";
 import TransactionHistoryScreen from "./src/screens/TransactionHistoryScreen";
+import BannerSection from "./src/screens/BannerSection";
+import AddBannerScreen from "./src/screens/AddBannerScreen";
+import BannerListScreen from "./src/screens/BannerListScreen";
+import BannerDetailScreen from "./src/screens/BannerDetailScreen";
 
 
 const Stack = createStackNavigator();
@@ -65,6 +69,10 @@ export default function App() {
         <Stack.Screen name="DepositScreen" component={DepositScreen} />
         <Stack.Screen name="WithdrawScreen" component={WithdrawScreen} />
         <Stack.Screen name="TransactionHistoryScreen" component={TransactionHistoryScreen} />
+        <Stack.Screen name="BannerSection" component={BannerSection} />
+        <Stack.Screen name="AddBannerScreen" component={AddBannerScreen} />
+        <Stack.Screen name="BannerListScreen" component={BannerListScreen} />
+        <Stack.Screen name="BannerDetailScreen" component={BannerDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
-import { Button, DataTable, Modal, Portal, Switch, Provider } from "react-native-paper";
+import { View, ActivityIndicator, TextInput, FlatList, Text, Button, Modal, TouchableOpacity, Switch } from "react-native";
+import { DataTable, TextInput as PaperInput } from "react-native-paper";
 import axios from "axios";
 
 const UsersScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [filter, setFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
-  const [actionType, setActionType] = useState(""); 
+  const [isApproved, setIsApproved] = useState(false);
+  const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -18,146 +19,202 @@ const UsersScreen = ({ navigation }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("https://your-api.com/users/");
+      const response = await axios.get("http://192.168.28.83:8000/api/users/");
       setUsers(response.data);
       setFilteredUsers(response.data);
     } catch (error) {
       console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const updateUserStatus = async () => {
-    if (!selectedUser) return;
-    try {
-      await axios.post(`https://your-api.com/users/${selectedUser.id}/`, {
-        is_approved: actionType === "approve",
-        is_blocked: actionType === "block",
-      });
-      fetchUsers();
-      setConfirmModalVisible(false);
-    } catch (error) {
-      console.error("Error updating user:", error);
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    if (query.trim() === "") {
+      setFilteredUsers(users);
+    } else {
+      const filtered = users.filter(
+        (user) =>
+          user.first_name.toLowerCase().includes(query.toLowerCase()) ||
+          user.last_name.toLowerCase().includes(query.toLowerCase()) ||
+          user.email.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredUsers(filtered);
     }
   };
 
-  const openConfirmModal = (user, action) => {
+  const toggleApproval = (user) => {
     setSelectedUser(user);
-    setActionType(action);
-    setConfirmModalVisible(true);
+    setIsApproved(user.is_approved);
+    setConfirmationModalVisible(true);
   };
 
-  const openUserDetailsModal = (user) => {
+  const confirmApproval = async () => {
+    try {
+      await axios.post(`http://192.168.28.83:8000/api/approve-vendor/${selectedUser.id}/`, {
+        is_approved: isApproved,
+      });
+      // Update the users list after approval
+      const updatedUsers = users.map((user) =>
+        user.id === selectedUser.id ? { ...user, is_approved: isApproved } : user
+      );
+      setUsers(updatedUsers);
+      setFilteredUsers(updatedUsers); // Also update the filtered list
+      setConfirmationModalVisible(false);
+      alert("Approval status updated successfully.");
+    } catch (error) {
+      console.error("Error updating approval:", error);
+    }
+  };
+
+  const handleSwitchChange = (value) => {
+    setIsApproved(value);
+  };
+
+  const handleRowClick = (user) => {
     setSelectedUser(user);
     setModalVisible(true);
   };
 
-  useEffect(() => {
-    if (filter === "approved") {
-      setFilteredUsers(users.filter((user) => user.is_approved));
-    } else if (filter === "pending") {
-      setFilteredUsers(users.filter((user) => !user.is_approved));
-    } else {
-      setFilteredUsers(users);
-    }
-  }, [filter, users]);
-
   return (
-    <Provider>
-      <View style={styles.container}>
-        <Text style={styles.title}>Users Dashboard</Text>
+    <View style={{ flex: 1, padding: 20 }}>
+      <Button
+        title="Back to Dashboard"
+        onPress={() => navigation.navigate("AdminDashboard")}
+        color="black"
+      />
+      <TextInput
+        placeholder="Search by name or email..."
+        value={searchQuery}
+        onChangeText={handleSearch}
+        style={{
+          height: 40,
+          borderBottomWidth: 1,
+          marginBottom: 10,
+          paddingHorizontal: 8,
+        }}
+      />
 
-        {/* Back to Dashboard Button */}
-        <Button mode="contained" onPress={() => navigation.navigate("AdminDashboard")} style={styles.backButton}>
-          Back to Dashboard
-        </Button>
-
-        {/* Filter Buttons */}
-        <View style={styles.filterContainer}>
-          <Button mode={filter === "all" ? "contained" : "outlined"} onPress={() => setFilter("all")} color="#F9622C">All</Button>
-          <Button mode={filter === "approved" ? "contained" : "outlined"} onPress={() => setFilter("approved")} color="#F9622C">Approved</Button>
-          <Button mode={filter === "pending" ? "contained" : "outlined"} onPress={() => setFilter("pending")} color="#F9622C">Pending</Button>
-        </View>
-
-        {/* Users Table */}
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
         <DataTable>
           <DataTable.Header>
-            <DataTable.Title>Username</DataTable.Title>
+            <DataTable.Title>First Name</DataTable.Title>
+            <DataTable.Title>Last Name</DataTable.Title>
             <DataTable.Title>Email</DataTable.Title>
             <DataTable.Title>Role</DataTable.Title>
-            <DataTable.Title>Status</DataTable.Title>
-            <DataTable.Title>Actions</DataTable.Title>
+            <DataTable.Title>Approval</DataTable.Title>
           </DataTable.Header>
 
           <FlatList
             data={filteredUsers}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => openUserDetailsModal(item)}>
+              <TouchableOpacity onPress={() => handleRowClick(item)}>
                 <DataTable.Row>
-                  <DataTable.Cell>{item.username}</DataTable.Cell>
+                  <DataTable.Cell>{item.first_name}</DataTable.Cell>
+                  <DataTable.Cell>{item.last_name}</DataTable.Cell>
                   <DataTable.Cell>{item.email}</DataTable.Cell>
-                  <DataTable.Cell>{item.role === "vendor" ? "Vendor" : "Customer"}</DataTable.Cell>
-                  <DataTable.Cell>{item.is_approved ? "Approved" : "Pending"}</DataTable.Cell>
+                  <DataTable.Cell>{item.is_vendor ? "Vendor" : "Customer"}</DataTable.Cell>
                   <DataTable.Cell>
-                    <Switch 
-                      value={item.is_approved} 
-                      onValueChange={() => openConfirmModal(item, item.is_approved ? "decline" : "approve")} 
-                      color="#F9622C"
+                    <Switch
+                      value={item.is_approved}
+                      onValueChange={() => toggleApproval(item)}
                     />
-                    <Button mode="text" onPress={() => openConfirmModal(item, "block")} color="red">
-                      Block
-                    </Button>
                   </DataTable.Cell>
                 </DataTable.Row>
               </TouchableOpacity>
             )}
           />
         </DataTable>
+      )}
 
-        {/* User Details Modal */}
-        <Portal>
-          <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)} contentContainerStyle={styles.modalContainer}>
+      {/* Modal for User Details */}
+      <Modal
+        transparent={true}
+        visible={modalVisible}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+          <View style={{ width: 300, padding: 20, backgroundColor: "#fff", borderRadius: 10, borderColor: "#F9622C", borderWidth: 1 }}>
             {selectedUser && (
               <View>
-                <Text style={styles.modalTitle}>User Details</Text>
-                <Text>Username: {selectedUser.username}</Text>
-                <Text>Email: {selectedUser.email}</Text>
-                <Text>Role: {selectedUser.role === "vendor" ? "Vendor" : "Customer"}</Text>
-                <Text>Status: {selectedUser.is_approved ? "Approved" : "Pending"}</Text>
-                <Button onPress={() => setModalVisible(false)} color="#F9622C">Close</Button>
+                <Text style={{ fontSize: 18, marginBottom: 20, color: "#F9622C" }}>User Details</Text>
+                <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
+                  <PaperInput
+                    label="First Name"
+                    value={selectedUser.first_name}
+                    style={{ width: "45%", marginBottom: 10 }}
+                    disabled
+                  />
+                  <PaperInput
+                    label="Last Name"
+                    value={selectedUser.last_name}
+                    style={{ width: "45%", marginBottom: 10 }}
+                    disabled
+                  />
+                  <PaperInput
+                    label="Email"
+                    value={selectedUser.email}
+                    style={{ width: "45%", marginBottom: 10 }}
+                    disabled
+                  />
+                  <PaperInput
+                    label="Phone Number"
+                    value={selectedUser.phone_number || "N/A"}
+                    style={{ width: "45%", marginBottom: 10 }}
+                    disabled
+                  />
+                  <PaperInput
+                    label="Status"
+                    value={selectedUser.is_vendor ? "Vendor" : "Customer"}
+                    style={{ width: "45%", marginBottom: 10 }}
+                    disabled
+                  />
+                  <PaperInput
+                    label="Approval"
+                    value={selectedUser.is_approved ? "Approved" : "Pending"}
+                    style={{ width: "45%", marginBottom: 10 }}
+                    disabled
+                  />
+                </View>
+                <TouchableOpacity onPress={() => setModalVisible(false)} style={{ marginTop: 20 }}>
+                  <Text style={{ color: "red" }}>Close</Text>
+                </TouchableOpacity>
               </View>
             )}
-          </Modal>
-        </Portal>
+          </View>
+        </View>
+      </Modal>
 
-        {/* Confirm Action Modal */}
-        <Portal>
-          <Modal visible={confirmModalVisible} onDismiss={() => setConfirmModalVisible(false)} contentContainerStyle={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Confirm Action</Text>
-            {selectedUser && (
-              <Text>
-                Are you sure you want to {actionType} {selectedUser.username}?
-              </Text>
-            )}
-            <View style={styles.buttonRow}>
-              <Button mode="contained" onPress={updateUserStatus} color="#F9622C">Yes</Button>
-              <Button mode="outlined" onPress={() => setConfirmModalVisible(false)} color="#F9622C">No</Button>
+      {/* Modal for Approval Confirmation */}
+      <Modal
+        transparent={true}
+        visible={confirmationModalVisible}
+        animationType="slide"
+        onRequestClose={() => setConfirmationModalVisible(false)}
+      >
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+          <View style={{ width: 300, padding: 20, backgroundColor: "white", borderRadius: 10 }}>
+            <Text style={{ fontSize: 18, marginBottom: 20 }}>
+              Are you sure you want to {isApproved ? "approve" : "disapprove"} this user?
+            </Text>
+            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+              <TouchableOpacity onPress={() => setConfirmationModalVisible(false)}>
+                <Text style={{ color: "red" }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={confirmApproval}>
+                <Text style={{ color: "#F9622C" }}>Confirm</Text>
+              </TouchableOpacity>
             </View>
-          </Modal>
-        </Portal>
-      </View>
-    </Provider>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
 export default UsersScreen;
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f5f5f5" },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
-  backButton: { marginBottom: 15, backgroundColor: "#F9622C" },
-  filterContainer: { flexDirection: "row", justifyContent: "space-around", marginBottom: 10 },
-  modalContainer: { backgroundColor: "white", padding: 20, margin: 20, borderRadius: 10 },
-  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
-  buttonRow: { flexDirection: "row", justifyContent: "space-around", marginTop: 10 },
-});
